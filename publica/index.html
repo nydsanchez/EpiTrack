@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f766e">
+<title>Registro de movimientos</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Registro">
+<style>
+:root{--bg:#f1f5f9;--card:#ffffff;--ink:#0f172a;--mut:#64748b;--pri:#0f766e;--pri2:#14b8a6;--red:#dc2626;--redbg:#fee2e2;--amb:#d97706;--ambbg:#fef3c7;--blue:#2563eb;--line:#e2e8f0;--gray:#94a3b8}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.45}
+#app{max-width:660px;margin:0 auto;padding:12px 12px 96px}
+header.top{display:flex;align-items:center;justify-content:space-between;padding:6px 2px 10px}
+header.top h1{font-size:19px;margin:0}
+header.top .sub{color:var(--mut);font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 1px 2px rgba(15,23,42,.05)}
+.card h2{font-size:15px;margin:0 0 10px;color:var(--pri)}
+.card h3{font-size:14px;margin:12px 0 6px}
+.mut{color:var(--mut);font-size:13px}
+.small{font-size:13px}
+.banner{background:var(--ambbg);border:1px solid #fcd34d;color:#92400e;border-radius:12px;padding:10px 12px;font-size:13px;margin-bottom:12px}
+.banner.red{background:var(--redbg);border-color:#fca5a5;color:#991b1b}
+.bignum{font-size:44px;font-weight:800;line-height:1}
+.statrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.stat{background:var(--bg);border-radius:10px;padding:6px 10px;font-size:13px}
+.stat b{font-size:16px}
+.stat.red{background:var(--redbg);color:#991b1b}
+button{font:inherit;border:none;border-radius:12px;cursor:pointer;background:var(--bg);color:var(--ink);padding:10px 14px}
+button:active{transform:scale(.98)}
+.btn{background:var(--pri);color:#fff;font-weight:600}
+.btn.sec{background:#e2e8f0;color:var(--ink)}
+.btn.red{background:var(--red);color:#fff}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.biglog{width:100%;padding:22px 16px;font-size:21px;font-weight:800;border-radius:18px;background:linear-gradient(135deg,#0f766e,#14b8a6);color:#fff;box-shadow:0 6px 16px rgba(15,118,110,.35);margin:4px 0 10px}
+.biglog small{display:block;font-size:13px;font-weight:500;opacity:.9;margin-top:4px}
+.seg{display:flex;background:#e2e8f0;border-radius:12px;padding:4px;gap:4px}
+.seg button{flex:1;border-radius:9px;padding:10px 6px;font-weight:600;background:transparent;color:var(--mut)}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(15,23,42,.15)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 10px}
+.chip{border-radius:999px;padding:8px 13px;font-size:14px;background:#eef2f7;border:1.5px solid transparent}
+.chip.on{background:var(--pri);color:#fff;font-weight:600}
+.chip.on.red{background:var(--red)}
+.chip.on.amb{background:var(--amb)}
+.lbl{font-size:12px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.4px;margin:10px 0 2px}
+.ev{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-left:5px solid var(--gray);border-radius:10px;padding:9px 10px;margin-bottom:6px;cursor:pointer}
+.ev.fuerte{border-left-color:var(--red);background:#fff5f5}
+.ev.leve{border-left-color:var(--amb)}
+.ev.visible{border-left-color:var(--blue)}
+.ev .h{font-weight:800;font-size:16px;min-width:52px}
+.ev .p{font-size:14px}
+.badge{font-size:11.5px;font-weight:700;border-radius:6px;padding:2px 7px;background:#e2e8f0;color:#334155}
+.badge.red{background:var(--redbg);color:#991b1b}
+.badge.amb{background:var(--ambbg);color:#92400e}
+.badge.teal{background:#ccfbf1;color:#115e59}
+.badge.blue{background:#dbeafe;color:#1e40af}
+nav.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;z-index:40;padding-bottom:env(safe-area-inset-bottom)}
+nav.bottom .wrap{max-width:660px;margin:0 auto;display:flex;width:100%}
+nav.bottom button{flex:1;background:transparent;border-radius:0;padding:9px 2px 7px;font-size:11px;color:var(--mut);font-weight:600}
+nav.bottom button .ic{display:block;font-size:21px;line-height:1.2}
+nav.bottom button.on{color:var(--pri)}
+#sheetWrap{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:50;display:none}
+#sheetWrap.open{display:block}
+#sheet{position:absolute;bottom:0;left:0;right:0;max-width:660px;margin:0 auto;background:#fff;border-radius:18px 18px 0 0;max-height:88vh;overflow-y:auto;padding:16px 16px calc(20px + env(safe-area-inset-bottom))}
+#sheet .grab{width:44px;height:5px;background:#cbd5e1;border-radius:3px;margin:0 auto 10px}
+#modalWrap{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:60;display:none;align-items:center;justify-content:center;padding:14px}
+#modalWrap.open{display:flex}
+#modal{background:#fff;border-radius:16px;max-width:620px;width:100%;max-height:86vh;overflow-y:auto;padding:16px}
+textarea,input,select{font:inherit;border:1.5px solid var(--line);border-radius:10px;padding:9px 10px;width:100%;background:#fff;color:var(--ink)}
+textarea{min-height:110px;resize:vertical}
+input[type=time],input[type=date]{width:auto}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row>*{flex:1}
+.row .fix{flex:0 0 auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.3px}
+#toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;z-index:80;display:none;max-width:90%;text-align:center}
+.helpbox{background:#f0fdfa;border:1px solid #99f6e4;border-radius:12px;padding:10px 12px;font-size:14px;margin:8px 0}
+.helpbox.red{background:var(--redbg);border-color:#fca5a5}
+.helpbox ul{margin:6px 0;padding-left:20px}
+.helpbox li{margin:4px 0}
+.daychips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+svg text{font-family:system-ui,sans-serif}
+#printArea{display:none}
+@media print{
+ body{background:#fff}
+ #app,nav.bottom,#sheetWrap,#modalWrap,#toast{display:none!important}
+ #printArea{display:block;font-size:12px}
+ #printArea table{font-size:11px}
+ #printArea h1{font-size:18px}
+ #printArea h2{font-size:14px;margin:14px 0 6px}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<nav class="bottom"><div class="wrap">
+<button data-act="tab" data-tab="hoy" id="nav-hoy"><span class="ic">⚡</span>Hoy</button>
+<button data-act="tab" data-tab="frec" id="nav-frec"><span class="ic">📈</span>Frecuencia</button>
+<button data-act="tab" data-tab="hist" id="nav-hist"><span class="ic">📊</span>Historial</button>
+<button data-act="tab" data-tab="dosis" id="nav-dosis"><span class="ic">💊</span>Dosis</button>
+<button data-act="tab" data-tab="mas" id="nav-mas"><span class="ic">⚙️</span>Más</button>
+</div></nav>
+<div id="sheetWrap"><div id="sheet"></div></div>
+<div id="modalWrap"><div id="modal"></div></div>
+<div id="toast"></div>
+<div id="printArea"></div>
+<input type="file" id="fileIn" accept=".csv,.json,.txt" style="display:none">
+
+<script>
+'use strict';
+const SEED = /*SEED-INICIO*/{"eventos":[],"contexto":{}}/*SEED-FIN*/;
+/*LOGIC-START*/
+function pad(n){return String(n).padStart(2,'0');}
+function todayStr(){const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function nowHM(){const d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes());}
+function genId(){return 'e'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+function fechaLarga(f){try{return new Date(f+'T12:00:00').toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}catch(e){return f;}}
+function fechaCorta(f){const p=f.split('-');return p[2]+'/'+p[1];}
+const PARTES=['Mano','Pie','Pierna','Brazo','Hombro','Espalda','Cara','Pecho','Generalizado'];
+const LADOS=['Izquierdo','Derecho','Ambos','Un lado (s/e)'];
+const DURS=[['<5s','<5 s'],['5-15s','5–15 s'],['15-30s','15–30 s'],['30-60s','30–60 s'],['1-2min','1–2 min'],['2-5min','2–5 min'],['>5min','>5 min ⚠️']];
+function durLabel(d){const x=DURS.find(x=>x[0]===d);return x?x[1]:(d||'');}
+function ladoAbbr(l){return l==='Izquierdo'?'izq':l==='Derecho'?'der':l==='Ambos'?'ambos':l?'un lado':'';}
+function newEv(fecha,hora,obs,estado){return {id:'',fecha:fecha,hora:hora,horaFin:'',dur:'',tipo:'',partes:[],lado:'',intensidad:'',estado:estado||'Dormida',ojos:false,habla:false,varios:false,revisar:false,nota:'',obs:obs||'',fuente:''};}
+function normalizeEv(e){if(e.intensidad==='Fuerte'&&e.partes.indexOf('Generalizado')>=0)e.revisar=true;return e;}
+function statsDia(evs){
+ const s={total:evs.length,fuertes:0,general:0,despierta:0,ojos:0,habla:0,sutiles:0,varios:0,revisar:0,porHora:Array(24).fill(0),horaMin:'',horaMax:''};
+ const hs=[];
+ for(const e of evs){
+  if(e.intensidad==='Fuerte')s.fuertes++;
+  if(e.partes.indexOf('Generalizado')>=0)s.general++;
+  if(e.estado==='Despierta')s.despierta++;
+  if(e.ojos)s.ojos++;
+  if(e.habla)s.habla++;
+  if(e.intensidad==='Sutil')s.sutiles++;
+  if(e.varios)s.varios++;
+  if(e.revisar)s.revisar++;
+  const h=parseInt(e.hora,10);if(!isNaN(h)&&h>=0&&h<24){s.porHora[h]++;hs.push(e.hora);}
+ }
+ hs.sort();s.horaMin=hs[0]||'';s.horaMax=hs[hs.length-1]||'';
+ return s;
+}
+function applyDesc(ev,desc,isCont){
+ const d=(desc||'').toLowerCase().trim();
+ if(!d){if(!isCont){ev.intensidad='Sutil';ev.nota='Solo hora: movimiento sutil (cámara)';}return;}
+ if(/fuerte/.test(d))ev.intensidad='Fuerte';
+ if(/general|gneral|gnral|fnral|gral/.test(d))ev.partes=['Generalizado'];
+ const map=[['cara','Cara'],['mano','Mano'],['pie','Pie'],['pierna','Pierna'],['brazo','Brazo'],['hombro','Hombro'],['espalda','Espalda'],['pecho','Pecho']];
+ for(const kv of map){if(d.indexOf(kv[0])>=0&&ev.partes.indexOf('Generalizado')<0&&ev.partes.indexOf(kv[1])<0)ev.partes.push(kv[1]);}
+ if(/izquierd|\bizq/.test(d))ev.lado='Izquierdo';
+ else if(/derech|\bder/.test(d))ev.lado='Derecho';
+ else if(/ambos|los dos/.test(d))ev.lado='Ambos';
+ else if(/un lado/.test(d))ev.lado='Un lado (s/e)';
+ if(/sacudida/.test(d))ev.tipo='Sacudida';
+ else if(/temblor|tembló|temblo/.test(d))ev.tipo='Temblor';
+ if(/abr.*ojo|abiert.*ojo|ojo.*abiert|ojito/.test(d))ev.ojos=true;
+ if(/habla/.test(d))ev.habla=true;
+ if(/varios/.test(d))ev.varios=true;
+ if(/revisar|verlo nuev|ver nuev|revisarlo/.test(d))ev.revisar=true;
+ ev.nota=ev.nota?ev.nota+' · '+desc.trim():desc.trim();
+}
+function parseLista(text,fecha,obs,estado){
+ const out=[];let last=null,lastH=null;
+ const strip=s=>s.replace(/^\[[^\]]+\]\s*[^:]{0,40}:\s*/,'').trim();
+ const tRe=/^(\d{1,2})[:.;h](\d{2})(?:\s*[-–a]\s*(\d{1,2})(?:[:.;](\d{2}))?)?\s*(.*)$/i;
+ for(const raw of String(text).split(/\r?\n/)){
+  const line=strip(raw);if(!line)continue;
+  const m=line.match(tRe);
+  if(!m){if(last)applyDesc(last,line,true);continue;}
+  let h=+m[1],mi=+m[2];const rest=m[5]||'';let horaFin='';
+  if(m[3]){let eh=h,em;if(m[4]!=null&&m[4]!==''){eh=+m[3];em=+m[4];}else{em=+m[3];}
+   if(em<=59&&eh<=23)horaFin=pad(eh)+':'+pad(em);}
+  const low=rest.toLowerCase();
+  if(/\bpm\b/.test(low)&&h<12)h+=12;
+  else if(/\bam\b/.test(low)&&h===12)h=0;
+  else if(h<8&&lastH!=null&&lastH>=12)h+=12;
+  if(h>23||mi>59){if(last)applyDesc(last,line,true);continue;}
+  lastH=h;
+  const ev=newEv(fecha,pad(h)+':'+pad(mi),obs,estado);
+  ev.horaFin=horaFin;ev.fuente='Lista pegada';
+  applyDesc(ev,rest,false);
+  out.push(ev);last=ev;
+ }
+ return out;
+}
+function csvEsc(v){v=String(v==null?'':v);return /[;"\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
+const CSV_COLS=['id','fecha','hora','hora_fin','duracion','tipo','partes','lado','intensidad','estado','ojos','habla','varios','revisar','observador','fuente','nota'];
+function evToRow(e){return [e.id,e.fecha,e.hora,e.horaFin,e.dur,e.tipo,e.partes.join(','),e.lado,e.intensidad,e.estado,e.ojos?'sí':'',e.habla?'sí':'',e.varios?'sí':'',e.revisar?'sí':'',e.obs,e.fuente,e.nota];}
+function toCSV(evs){return '﻿'+CSV_COLS.join(';')+'\n'+evs.map(e=>evToRow(e).map(csvEsc).join(';')).join('\n');}
+function parseCSV(text){
+ text=String(text).replace(/^﻿/,'');
+ const firstNL=text.indexOf('\n');const head=firstNL>=0?text.slice(0,firstNL):text;
+ const delim=(head.split(';').length>head.split(',').length)?';':',';
+ const rows=[];let row=[],cur='',inQ=false;
+ for(let i=0;i<text.length;i++){const c=text[i];
+  if(inQ){if(c==='"'){if(text[i+1]==='"'){cur+='"';i++;}else inQ=false;}else cur+=c;}
+  else{if(c==='"')inQ=true;else if(c===delim){row.push(cur);cur='';}else if(c==='\n'){row.push(cur);cur='';rows.push(row);row=[];}else if(c!=='\r')cur+=c;}
+ }
+ if(cur!==''||row.length){row.push(cur);rows.push(row);}
+ if(!rows.length)return [];
+ const hdr=rows[0].map(h=>h.trim().toLowerCase());
+ const out=[];
+ for(let r=1;r<rows.length;r++){const cells=rows[r];if(cells.length<2)continue;
+  const o={};hdr.forEach((h,i)=>o[h]=cells[i]!=null?cells[i].trim():'');
+  const e=newEv(o.fecha,o.hora,o.observador,o.estado||'Dormida');
+  e.id=o.id||genId();e.horaFin=o.hora_fin||'';e.dur=o.duracion||'';e.tipo=o.tipo||'';
+  e.partes=(o.partes||'').split(',').map(s=>s.trim()).filter(Boolean);
+  e.lado=o.lado||'';e.intensidad=o.intensidad||'';
+  const yes=v=>/^(sí|si|1|true|x)$/i.test(v||'');
+  e.ojos=yes(o.ojos);e.habla=yes(o.habla);e.varios=yes(o.varios);e.revisar=yes(o.revisar);
+  e.nota=o.nota||'';e.fuente=o.fuente||'CSV';
+  if(e.fecha&&e.hora)out.push(e);
+ }
+ return out;
+}
+/* ---- Frecuencia (lo que pide el neurólogo): eventos por día y por hora ---- */
+function aMin(hm){const p=String(hm).split(':');return (+p[0])*60+(+p[1]||0);}
+function fmtTasa(t){return t==null?'—':t.toFixed(1);}
+// Frecuencia de un día. Si el contexto tiene horario observado (obsDesde/obsHasta),
+// la tasa usa esa ventana real; si no, usa primer→último evento (+1 min) como aproximación.
+function frecDia(evs,ctx){
+ const st=statsDia(evs);
+ let ventanaMin=0,tasa=null,obsReal=false,ventana='';
+ if(evs.length){
+  const mins=evs.map(e=>aMin(e.hora)).sort((a,b)=>a-b);
+  let d=mins[0],h=mins[mins.length-1]+1;
+  if(ctx&&ctx.obsDesde&&ctx.obsHasta){const cd=aMin(ctx.obsDesde),ch=aMin(ctx.obsHasta);if(ch>cd){d=cd;h=ch;obsReal=true;}}
+  ventanaMin=h-d;
+  ventana=pad(Math.floor(d/60))+':'+pad(d%60)+'–'+pad(Math.floor(h/60))+':'+pad(h%60);
+  tasa=evs.length/(ventanaMin/60);
+ }
+ let intervalo=null;
+ if(evs.length>1){const mins=evs.map(e=>aMin(e.hora)).sort((a,b)=>a-b);let s=0;for(let i=1;i<mins.length;i++)s+=mins[i]-mins[i-1];intervalo=s/(mins.length-1);}
+ return Object.assign(st,{ventana:ventana,ventanaMin:ventanaMin,tasa:tasa,obsReal:obsReal,intervalo:intervalo});
+}
+// Resumen de frecuencia de TODOS los días
+function frecGlobal(eventos,contexto){
+ const dias=Array.from(new Set(eventos.map(e=>e.fecha))).sort();
+ const porDia=dias.map(f=>{const evs=eventos.filter(e=>e.fecha===f);const fd=frecDia(evs,contexto[f]||{});return Object.assign({fecha:f,ml:(contexto[f]||{}).ml||''},fd);});
+ const total=eventos.length;
+ const horasObs=porDia.reduce((s,d)=>s+(d.ventanaMin||0),0)/60;
+ const fuertes=eventos.filter(e=>e.intensidad==='Fuerte').length;
+ const general=eventos.filter(e=>e.partes.indexOf('Generalizado')>=0).length;
+ const despierta=eventos.filter(e=>e.estado==='Despierta').length;
+ const porHora=Array(24).fill(0);eventos.forEach(e=>{const h=parseInt(e.hora,10);if(h>=0&&h<24)porHora[h]++;});
+ const porParte={},porInt={},porEstado={};
+ for(const e of eventos){
+  const ps=e.partes.length?e.partes:['(sin detalle)'];
+  ps.forEach(p=>{porParte[p]=(porParte[p]||0)+1;});
+  const it=e.intensidad||'(sin indicar)';porInt[it]=(porInt[it]||0)+1;
+  porEstado[e.estado]=(porEstado[e.estado]||0)+1;
+ }
+ let tendencia=null;
+ if(porDia.length>=2){const a=porDia[0],b=porDia[porDia.length-1];
+  if(a.tasa&&b.tasa)tendencia={de:a.fecha,a:b.fecha,tasaA:a.tasa,tasaB:b.tasa,cambioPct:(b.tasa-a.tasa)/a.tasa*100,nA:a.total,nB:b.total};}
+ return {dias:dias.length,total:total,promDia:dias.length?total/dias.length:0,horasObs:horasObs,tasaGlobal:horasObs>0?total/horasObs:null,fuertes:fuertes,general:general,despierta:despierta,porDia:porDia,porHora:porHora,porParte:porParte,porInt:porInt,porEstado:porEstado,tendencia:tendencia};
+}
+/* ---- Frecuencia por semana (lunes a domingo, semana ISO) ---- */
+function lunesDe(fecha){const d=new Date(fecha+'T12:00:00');const dow=(d.getDay()+6)%7;d.setDate(d.getDate()-dow);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function isoWeek(fecha){const d=new Date(fecha+'T12:00:00');const t=new Date(d);const dayNr=(d.getDay()+6)%7;t.setDate(t.getDate()-dayNr+3);const ft=new Date(t.getFullYear(),0,4);const fdayNr=(ft.getDay()+6)%7;ft.setDate(ft.getDate()-fdayNr+3);return 1+Math.round((t-ft)/(7*24*3600*1000));}
+function etiquetaSemana(lunes){const d=new Date(lunes+'T12:00:00');const dom=new Date(d);dom.setDate(d.getDate()+6);const f=x=>pad(x.getDate())+'/'+pad(x.getMonth()+1);return f(d)+' al '+f(dom);}
+function frecSemanas(eventos,contexto){
+ const porDia=frecGlobal(eventos,contexto).porDia;
+ const map={};
+ for(const d of porDia){
+  const lun=lunesDe(d.fecha);
+  if(!map[lun])map[lun]={lunes:lun,dias:[],total:0,fuertes:0,general:0,despierta:0,ventanaMin:0};
+  const s=map[lun];
+  s.dias.push(d.fecha);s.total+=d.total;s.fuertes+=d.fuertes;s.general+=d.general;s.despierta+=d.despierta;s.ventanaMin+=d.ventanaMin||0;
+ }
+ const semanas=Object.keys(map).sort().map(lun=>{
+  const s=map[lun];const horas=s.ventanaMin/60;
+  return {lunes:lun,etiqueta:etiquetaSemana(lun),iso:isoWeek(lun),diasRegistrados:s.dias.length,total:s.total,promDia:s.dias.length?s.total/s.dias.length:0,tasa:horas>0?s.total/horas:null,fuertes:s.fuertes,general:s.general,despierta:s.despierta,desde:s.dias[0],hasta:s.dias[s.dias.length-1],cambioPct:null};
+ });
+ for(let i=1;i<semanas.length;i++){const a=semanas[i-1],b=semanas[i];if(a.tasa&&b.tasa)b.cambioPct=(b.tasa-a.tasa)/a.tasa*100;}
+ return semanas;
+}
+function resumenFrecuencia(g,nombre,semanas){
+ const L=[];
+ L.push('📈 FRECUENCIA — '+(nombre||'Registro de movimientos'));
+ L.push('Días registrados: '+g.dias+' · Total: '+g.total+' eventos');
+ L.push('Promedio: '+g.promDia.toFixed(1)+' eventos/día'+(g.tasaGlobal!=null?' · '+fmtTasa(g.tasaGlobal)+' eventos/hora':''));
+ L.push('Fuertes: '+g.fuertes+' · Generalizados: '+g.general+' · Despierta: '+g.despierta);
+ if(g.tendencia){const t=g.tendencia;L.push('Tendencia: '+(t.cambioPct>=0?'↑':'↓')+' '+Math.abs(t.cambioPct).toFixed(0)+'% en eventos/hora ('+fechaCorta(t.de)+' → '+fechaCorta(t.a)+')');}
+ L.push('');L.push('— Por día —');
+ L.push('fecha · eventos · fuertes · general · despierta · eventos/h · dosis');
+ for(const d of g.porDia){L.push(fechaCorta(d.fecha)+' · '+d.total+' · '+d.fuertes+' · '+d.general+' · '+d.despierta+' · '+fmtTasa(d.tasa)+(d.ml?' · '+d.ml+' mL':''));}
+ if(semanas&&semanas.length){
+  L.push('');L.push('— Por semana (lun–dom) —');
+  L.push('semana · días reg. · eventos · eventos/día · eventos/h · fuertes');
+  for(const s of semanas){L.push('S'+s.iso+' ('+fechaCorta(s.lunes)+') · '+s.diasRegistrados+'/7 · '+s.total+' · '+s.promDia.toFixed(1)+' · '+fmtTasa(s.tasa)+' · '+s.fuertes);}
+ }
+ const ph=[];g.porHora.forEach((n,h)=>{if(n)ph.push(h+'h: '+n);});
+ if(ph.length){L.push('');L.push('Horas pico (todos los días): '+ph.join(' · '));}
+ L.push('');L.push('Frecuencia = eventos por día y por hora. Ventana = horario observado (o primer→último evento si no se indicó).');
+ return L.join('\n');
+}
+function resumenDia(fecha,evs,ctx,nombre){
+ const st=statsDia(evs);
+ const L=[];
+ L.push('📋 '+(nombre||'Registro de movimientos')+' — '+fechaLarga(fecha));
+ if(ctx&&ctx.ml)L.push('💊 Keppra: '+ctx.ml+' mL por toma × '+(ctx.tomas||'?')+' tomas/día');
+ L.push('Total: '+st.total+' eventos'+(st.horaMin?' ('+st.horaMin+'–'+st.horaMax+')':''));
+ L.push('Fuertes: '+st.fuertes+' · Generalizados: '+st.general+' · Ojos abiertos: '+st.ojos+' · Despierta: '+st.despierta);
+ const fd=frecDia(evs,ctx);
+ if(fd.tasa!=null)L.push('Frecuencia: '+fmtTasa(fd.tasa)+' eventos/hora (ventana '+fd.ventana+(fd.obsReal?', observada':'')+')'+(fd.intervalo!=null?' · intervalo medio '+fd.intervalo.toFixed(1)+' min':''));
+ const ph=[];st.porHora.forEach((n,h)=>{if(n)ph.push(h+'h: '+n);});
+ if(ph.length)L.push('Por hora: '+ph.join(' · '));
+ L.push('');L.push('— Detalle —');
+ const sorted=evs.slice().sort((a,b)=>a.hora<b.hora?-1:1);
+ for(const e of sorted){
+  let s=e.hora+(e.horaFin?'–'+e.horaFin:'')+' '+(e.partes.join('+')||'movimiento sutil');
+  if(e.lado)s+=' ('+ladoAbbr(e.lado)+')';
+  if(e.intensidad)s+=' · '+e.intensidad.toLowerCase();
+  s+=' · '+(e.estado==='Despierta'?'DESPIERTA':e.estado==='Dormida'?'dormida':'estado s/d');
+  if(e.dur)s+=' · '+durLabel(e.dur);
+  if(e.ojos)s+=' 👀';
+  if(e.habla)s+=' 🗣';
+  if(e.varios)s+=' (varios seguidos)';
+  if(e.revisar)s+=' 🎥';
+  L.push(s);
+ }
+ const rev=sorted.filter(e=>e.revisar).map(e=>e.hora);
+ if(rev.length){L.push('');L.push('🎥 Revisar/guardar video: '+rev.join(', '));}
+ if(ctx&&ctx.notas){L.push('');L.push('Notas del día: '+ctx.notas);}
+ return L.join('\n');
+}
+/*LOGIC-END*/
+
+/* ---------- estado y almacenamiento ---------- */
+const LS_KEY='registro_temblores_v1';
+let storageOK=true;
+try{localStorage.setItem('__t','1');localStorage.removeItem('__t');}catch(e){storageOK=false;}
+function seedState(){return {eventos:SEED.eventos.map(e=>Object.assign({},e)),contexto:JSON.parse(JSON.stringify(SEED.contexto)),ajustes:{nombre:'',observadores:['Mamá','Papá','Otro'],obsActivo:'Mamá',estadoDefault:'Dormida',mgml:'',peso:'',introVista:false}};}
+function load(){if(storageOK){try{const r=localStorage.getItem(LS_KEY);if(r){const s=JSON.parse(r);if(s&&s.eventos)return s;}}catch(e){}}return seedState();}
+let S=load();
+function save(){if(storageOK){try{localStorage.setItem(LS_KEY,JSON.stringify(S));}catch(e){}}}
+const ui={tab:'hoy',selDay:null,sheetId:null,modal:null,parseRows:null,parseFecha:null};
+function evById(id){return S.eventos.find(e=>e.id===id);}
+function evsDia(f){return S.eventos.filter(e=>e.fecha===f).sort((a,b)=>a.hora<b.hora?-1:a.hora>b.hora?1:0);}
+function diasConDatos(){const set=new Set(S.eventos.map(e=>e.fecha));Object.keys(S.contexto).forEach(f=>{const c=S.contexto[f];if(c&&(c.ml||c.notas))set.add(f);});return Array.from(set).sort();}
+function lastDayWithData(){const ds=diasConDatos().filter(f=>S.eventos.some(e=>e.fecha===f));return ds[ds.length-1]||null;}
+if(!ui.selDay)ui.selDay=lastDayWithData()||todayStr();
+function getCtx(f){return S.contexto[f]||{};}
+function setCtx(f,patch){S.contexto[f]=Object.assign({},S.contexto[f],patch);save();}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';clearTimeout(toast._t);toast._t=setTimeout(()=>t.style.display='none',2200);}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+/* ---------- PWA: instalar + funcionar sin internet ---------- */
+let deferredPrompt=null;
+if(typeof window!=='undefined'&&window.addEventListener){
+ window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;if(ui.tab==='mas')render();});
+ window.addEventListener('appinstalled',()=>{deferredPrompt=null;if(ui.tab==='mas')render();});
+}
+function instalarApp(){
+ if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.finally(()=>{deferredPrompt=null;render();});}
+ else toast('iPhone: Compartir → Agregar a inicio · Android: menú ⋮ → Instalar / Agregar a pantalla de inicio');
+}
+// Service worker: solo en contexto seguro (https o localhost). En archivo local (file://) no aplica.
+if(typeof navigator!=='undefined'&&'serviceWorker' in navigator&&typeof location!=='undefined'&&(location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1')){
+ window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{});});
+}
+
+/* ---------- componentes ---------- */
+function badges(e){
+ let b='';
+ if(e.intensidad==='Fuerte')b+='<span class="badge red">FUERTE</span>';
+ else if(e.intensidad==='Leve')b+='<span class="badge amb">leve</span>';
+ else if(e.intensidad==='Sutil')b+='<span class="badge">sutil</span>';
+ if(e.tipo==='Sacudida')b+='<span class="badge blue">sacudida</span>';
+ if(e.lado)b+='<span class="badge">'+esc(ladoAbbr(e.lado))+'</span>';
+ b+='<span class="badge '+(e.estado==='Despierta'?'amb':'teal')+'">'+(e.estado==='Despierta'?'👀 despierta':e.estado==='Dormida'?'😴 dormida':'¿?')+'</span>';
+ if(e.ojos)b+='<span class="badge">abre ojos</span>';
+ if(e.habla)b+='<span class="badge">habla</span>';
+ if(e.varios)b+='<span class="badge amb">varios</span>';
+ if(e.dur)b+='<span class="badge">'+esc(durLabel(e.dur))+'</span>';
+ if(e.revisar)b+='<span class="badge red">🎥 video</span>';
+ return b;
+}
+function evRow(e){
+ const cls=e.intensidad==='Fuerte'?'fuerte':e.intensidad==='Leve'?'leve':e.intensidad==='Sutil'?'':'visible';
+ return '<div class="ev '+cls+'" data-act="openEv" data-id="'+e.id+'"><span class="h">'+e.hora+(e.horaFin?'<span class="mut" style="font-weight:400">–'+e.horaFin+'</span>':'')+'</span><span class="p">'+esc(e.partes.join(' + ')||'movimiento')+'</span>'+badges(e)+'</div>';
+}
+function hourChart(evs){
+ const st=statsDia(evs);const max=Math.max(1,...st.porHora);
+ let bars='';
+ for(let h=0;h<24;h++){const n=st.porHora[h];const bh=Math.round(n/max*78);const x=8+h*20;
+  bars+='<rect x="'+x+'" y="'+(96-bh)+'" width="14" height="'+Math.max(bh,n?2:0)+'" rx="2" fill="'+(n?'#0f766e':'#e2e8f0')+'"></rect>';
+  if(n)bars+='<text x="'+(x+7)+'" y="'+(90-bh)+'" font-size="10" text-anchor="middle" fill="#0f172a" font-weight="700">'+n+'</text>';
+  if(h%3===0)bars+='<text x="'+(x+7)+'" y="110" font-size="9" text-anchor="middle" fill="#64748b">'+h+'h</text>';
+ }
+ return '<svg viewBox="0 0 488 116" style="width:100%;height:auto">'+bars+'</svg>';
+}
+function histChart(){
+ const days=diasConDatos();if(!days.length)return '<p class="mut">Aún no hay días registrados.</p>';
+ const data=days.map(f=>{const evs=evsDia(f);const st=statsDia(evs);return {f:f,total:st.total,fuertes:st.fuertes,ml:getCtx(f).ml};});
+ const max=Math.max(1,...data.map(d=>d.total));
+ const W=Math.max(320,days.length*58+16),H=190;
+ let out='';
+ data.forEach((d,i)=>{
+  const x=14+i*58;const bh=Math.round(d.total/max*110);const fh=Math.round(d.fuertes/max*110);
+  const sel=d.f===ui.selDay;
+  out+='<g data-act="selDay" data-day="'+d.f+'" style="cursor:pointer">';
+  out+='<rect x="'+(x-4)+'" y="8" width="50" height="172" rx="8" fill="'+(sel?'#f0fdfa':'transparent')+'" stroke="'+(sel?'#14b8a6':'none')+'"></rect>';
+  out+='<rect x="'+x+'" y="'+(138-bh)+'" width="34" height="'+Math.max(bh,d.total?2:0)+'" rx="3" fill="#14b8a6"></rect>';
+  if(fh)out+='<rect x="'+x+'" y="'+(138-bh)+'" width="34" height="'+fh+'" rx="3" fill="#dc2626"></rect>';
+  if(d.total)out+='<text x="'+(x+17)+'" y="'+(132-bh)+'" font-size="12" text-anchor="middle" font-weight="800" fill="#0f172a">'+d.total+'</text>';
+  out+='<text x="'+(x+17)+'" y="154" font-size="10.5" text-anchor="middle" fill="#334155" font-weight="600">'+fechaCorta(d.f)+'</text>';
+  out+='<text x="'+(x+17)+'" y="168" font-size="9.5" text-anchor="middle" fill="#0f766e">'+(d.ml?d.ml+' mL':'')+'</text>';
+  out+='</g>';
+ });
+ return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto">'+out+'</svg><p class="mut small" style="margin:4px 0 0">Rojo = eventos fuertes · Debajo del día: dosis de Keppra (mL por toma) · Toca un día para ver el detalle.</p>';
+}
+function statsRow(evs){
+ const st=statsDia(evs);
+ return '<div class="statrow"><span class="stat"><b>'+st.total+'</b> eventos</span><span class="stat red"><b>'+st.fuertes+'</b> fuertes</span><span class="stat"><b>'+st.general+'</b> generalizados</span><span class="stat"><b>'+st.ojos+'</b> con ojos abiertos</span><span class="stat"><b>'+st.despierta+'</b> despierta</span></div>';
+}
+
+/* ---------- vistas ---------- */
+function render(){
+ const app=document.getElementById('app');
+ let html='';
+ if(!storageOK)html+='<div class="banner">⚠️ <b>Vista previa:</b> aquí los cambios no se guardan al cerrar. Para uso real, descarga el archivo <b>index.html</b> y ábrelo en el navegador del celular (o usa la versión en línea).</div>';
+ html+='<header class="top"><div><h1>⚡ Registro de movimientos</h1><div class="sub">'+(S.ajustes.nombre?esc(S.ajustes.nombre)+' · ':'')+fechaLarga(todayStr())+'</div></div><div class="mut small">'+(storageOK?'💾 guardado':'⚠️ sin guardar')+'</div></header>';
+ if(ui.tab==='hoy')html+=viewHoy();
+ else if(ui.tab==='frec')html+=viewFrec();
+ else if(ui.tab==='hist')html+=viewHist();
+ else if(ui.tab==='dosis')html+=viewDosis();
+ else html+=viewMas();
+ app.innerHTML=html;
+ ['hoy','frec','hist','dosis','mas'].forEach(t=>{document.getElementById('nav-'+t).className=ui.tab===t?'on':'';});
+ renderSheet();renderModal();
+}
+function viewHoy(){
+ const f=todayStr();const evs=evsDia(f);const st=statsDia(evs);
+ let h='';
+ if(!S.ajustes.introVista){
+  h+='<div class="card" style="border-color:#99f6e4;background:#f0fdfa"><h2>Cómo se usa (10 segundos por evento)</h2><ol class="small" style="margin:6px 0 10px;padding-left:20px"><li><b>Un toque</b> al botón grande en cuanto vean un movimiento → guarda la hora exacta.</li><li>Opcional: toquen las etiquetas (parte del cuerpo, fuerte, ojos abiertos…). Si no alcanzan, no pasa nada: <b>la hora y la frecuencia son lo más importante</b>.</li><li>En <b>Historial</b> ven la frecuencia por día y por hora; en <b>Más</b> exportan para el médico.</li></ol><button class="btn" data-act="introOk">Entendido</button></div>';
+ }
+ h+='<div class="card"><div class="row" style="justify-content:space-between"><div><div class="bignum">'+st.total+'</div><div class="mut">movimientos hoy</div></div><div style="text-align:right" class="small">'+(st.fuertes?'<span class="badge red">'+st.fuertes+' fuertes</span> ':'')+(st.despierta?'<span class="badge amb">'+st.despierta+' despierta</span>':'')+'</div></div>';
+ h+='<div class="lbl">La niña está… (para los próximos registros)</div><div class="seg"><button data-act="defEstado" data-val="Dormida" class="'+(S.ajustes.estadoDefault==='Dormida'?'on':'')+'">😴 Dormida</button><button data-act="defEstado" data-val="Despierta" class="'+(S.ajustes.estadoDefault==='Despierta'?'on':'')+'">👀 Despierta</button></div>';
+ h+='<button class="biglog" data-act="quickLog">⚡ REGISTRAR AHORA<small>un toque = hora exacta guardada · detalles opcionales después</small></button>';
+ h+='<div class="row"><button class="btn ghost" data-act="pastEvent">＋ Anotar uno anterior (hora manual)</button></div></div>';
+ if(!evs.length){const ld=lastDayWithData();
+  if(ld)h+='<div class="card"><p class="small" style="margin:0 0 8px">Hoy aún no hay registros. El último día con datos es <b>'+fechaLarga(ld)+'</b> ('+evsDia(ld).length+' eventos).</p><button class="btn sec" data-act="goHist" data-day="'+ld+'">Ver ese día 📊</button></div>';
+ }else{
+  h+='<div class="card"><h2>Por hora</h2>'+hourChart(evs)+'</div>';
+  h+='<div class="card"><h2>Eventos de hoy ('+evs.length+')</h2>'+evs.map(evRow).join('')+'<p class="mut small">Toca un evento para editar detalles, duración o borrarlo.</p></div>';
+ }
+ return h;
+}
+function viewHist(){
+ const days=diasConDatos();const f=ui.selDay;const evs=evsDia(f);const ctx=getCtx(f);
+ let h='<div class="card"><h2>Frecuencia por día</h2>'+histChart()+'</div>';
+ if(days.length){
+  h+='<div class="card"><h2>Día: '+fechaLarga(f)+'</h2><div class="daychips">'+days.map(d=>'<button class="chip '+(d===f?'on':'')+'" data-act="selDay" data-day="'+d+'">'+fechaCorta(d)+' · '+evsDia(d).length+'</button>').join('')+'</div>';
+  h+=statsRow(evs);
+  h+='<div class="lbl">Por hora</div>'+hourChart(evs);
+  h+='<div class="row" style="margin-top:10px"><button class="btn sec" data-act="waSummary" data-day="'+f+'">📋 Resumen WhatsApp</button><button class="btn sec" data-act="printDay" data-day="'+f+'">🖨️ Informe médico</button></div></div>';
+  h+='<div class="card"><h2>Contexto del día</h2><div class="row"><div><div class="lbl">Observado desde</div><input type="time" id="ctx-desde" value="'+esc(ctx.obsDesde||'')+'"></div><div><div class="lbl">Observado hasta</div><input type="time" id="ctx-hasta" value="'+esc(ctx.obsHasta||'')+'"></div></div><p class="mut small" style="margin:2px 0 8px">Horario en que estuvieron mirando la cámara (para calcular eventos/hora exactos).</p><div class="row"><div><div class="lbl">Horas de sueño (aprox.)</div><input type="number" step="0.5" min="0" max="24" id="ctx-sueno" value="'+esc(ctx.sueno||'')+'"></div><div><div class="lbl">Ánimo / irritabilidad</div><select id="ctx-animo"><option value="">—</option>'+[1,2,3,4,5].map(n=>'<option value="'+n+'"'+(String(ctx.animo)===String(n)?' selected':'')+'>'+n+(n===1?' (tranquila)':n===5?' (muy irritable)':'')+'</option>').join('')+'</select></div></div><div class="lbl">Notas (despertares, llanto, apetito, qué dijo la niña…)</div><textarea id="ctx-notas" style="min-height:64px">'+esc(ctx.notas||'')+'</textarea><div style="margin-top:8px"><button class="btn" data-act="ctxSave" data-day="'+f+'">Guardar contexto</button></div></div>';
+  h+='<div class="card"><h2>Eventos ('+evs.length+')</h2>'+(evs.length?evs.map(evRow).join(''):'<p class="mut">Sin eventos este día.</p>')+'</div>';
+ }
+ return h;
+}
+function weekChart(semanas){
+ if(!semanas.length)return '<p class="mut">Aún no hay semanas registradas.</p>';
+ const max=Math.max(1,...semanas.map(s=>s.total));
+ const W=Math.max(320,semanas.length*72+16),H=185;
+ let out='';
+ semanas.forEach((s,i)=>{
+  const x=14+i*72;const bh=Math.round(s.total/max*100);const fh=Math.round(s.fuertes/max*100);
+  out+='<rect x="'+x+'" y="'+(128-bh)+'" width="44" height="'+Math.max(bh,s.total?2:0)+'" rx="3" fill="#14b8a6"></rect>';
+  if(fh)out+='<rect x="'+x+'" y="'+(128-bh)+'" width="44" height="'+fh+'" rx="3" fill="#dc2626"></rect>';
+  if(s.total)out+='<text x="'+(x+22)+'" y="'+(122-bh)+'" font-size="12" text-anchor="middle" font-weight="800" fill="#0f172a">'+s.total+'</text>';
+  out+='<text x="'+(x+22)+'" y="144" font-size="10.5" text-anchor="middle" fill="#334155" font-weight="700">S'+s.iso+'</text>';
+  out+='<text x="'+(x+22)+'" y="158" font-size="9" text-anchor="middle" fill="#64748b">'+fechaCorta(s.lunes)+'</text>';
+  out+='<text x="'+(x+22)+'" y="172" font-size="9" text-anchor="middle" fill="#0f766e">'+s.promDia.toFixed(1)+'/día</text>';
+ });
+ return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto">'+out+'</svg><p class="mut small" style="margin:4px 0 0">Rojo = fuertes · S = semana ISO · debajo: lunes de la semana y promedio de eventos/día.</p>';
+}
+function viewFrec(){
+ const g=frecGlobal(S.eventos,S.contexto);
+ let h='<div class="card" style="border-color:#99f6e4;background:#f0fdfa"><h2>📈 Frecuencia (lo que pide el neurólogo)</h2><p class="small mut" style="margin:0 0 8px">La frecuencia es <b>cuántos eventos por día y por hora</b>. Aquí está resumida; con los botones de abajo la envían por WhatsApp o la imprimen para la cita.</p>';
+ h+='<div class="statrow"><span class="stat"><b>'+fmtTasa(g.tasaGlobal)+'</b> eventos/hora</span><span class="stat"><b>'+g.promDia.toFixed(1)+'</b> eventos/día</span><span class="stat"><b>'+g.total+'</b> eventos</span><span class="stat"><b>'+g.dias+'</b> días</span></div>';
+ h+='<div class="statrow"><span class="stat red"><b>'+g.fuertes+'</b> fuertes</span><span class="stat"><b>'+g.general+'</b> generalizados</span><span class="stat"><b>'+g.despierta+'</b> despierta</span></div>';
+ h+='<div class="row" style="margin-top:10px"><button class="btn" data-act="waFrec">📋 Enviar frecuencia</button><button class="btn sec" data-act="printFrec">🖨️ Informe de frecuencia</button></div></div>';
+ if(!g.dias)return h+'<div class="card"><p class="mut">Aún no hay eventos. Registren el primero en "Hoy".</p></div>';
+ if(g.tendencia){const t=g.tendencia;const sube=t.cambioPct>=0;
+  h+='<div class="card"><h2>Tendencia</h2><p style="margin:0;font-size:15px">'+(sube?'📈':'📉')+' La frecuencia <b>'+(sube?'subió':'bajó')+' '+Math.abs(t.cambioPct).toFixed(0)+'%</b> en eventos/hora entre '+fechaCorta(t.de)+' ('+fmtTasa(t.tasaA)+'/h) y '+fechaCorta(t.a)+' ('+fmtTasa(t.tasaB)+'/h).</p><p class="mut small" style="margin:6px 0 0">Comparen con los cambios de dosis (columna mL). Un aumento sostenido merece aviso al neurólogo.</p></div>';
+ }else{
+  h+='<div class="card"><p class="mut small" style="margin:0">La tendencia entre días aparecerá cuando haya 2 o más días registrados.</p></div>';
+ }
+ h+='<div class="card"><h2>Frecuencia por día</h2><div style="overflow-x:auto"><table><tr><th>Día</th><th>Eventos</th><th>Fuertes</th><th>General.</th><th>Despierta</th><th>Ventana</th><th>Eventos/h</th><th>mL</th></tr>';
+ for(const d of g.porDia){h+='<tr data-act="goHist" data-day="'+d.fecha+'" style="cursor:pointer"><td><b>'+fechaCorta(d.fecha)+'</b></td><td><b>'+d.total+'</b></td><td>'+(d.fuertes||'')+'</td><td>'+(d.general||'')+'</td><td>'+(d.despierta||'')+'</td><td class="small">'+(d.ventana||'—')+(d.obsReal?'':'*')+'</td><td><b>'+fmtTasa(d.tasa)+'</b></td><td>'+esc(d.ml||'')+'</td></tr>';}
+ h+='</table></div><p class="mut small">* Ventana = primer→último evento. Para una tasa más exacta, indiquen el horario observado en Historial → Contexto del día ("Observado desde/hasta"). Toca una fila para ver ese día.</p></div>';
+ const sem=frecSemanas(S.eventos,S.contexto);
+ h+='<div class="card"><h2>Frecuencia por semana (lunes a domingo)</h2>'+weekChart(sem)+'<div style="overflow-x:auto"><table><tr><th>Semana</th><th>Días reg.</th><th>Eventos</th><th>Eventos/día</th><th>Eventos/h</th><th>Fuertes</th><th>General.</th><th>Despierta</th><th>Δ% vs ant.</th></tr>';
+ for(const s of sem){h+='<tr><td><b>S'+s.iso+'</b><br><span class="mut small">'+s.etiqueta+'</span></td><td>'+s.diasRegistrados+'/7</td><td><b>'+s.total+'</b></td><td>'+s.promDia.toFixed(1)+'</td><td><b>'+fmtTasa(s.tasa)+'</b></td><td>'+(s.fuertes||'')+'</td><td>'+(s.general||'')+'</td><td>'+(s.despierta||'')+'</td><td>'+(s.cambioPct!=null?(s.cambioPct>=0?'+':'')+s.cambioPct.toFixed(0)+'%':'—')+'</td></tr>';}
+ h+='</table></div><p class="mut small">Semanas ISO de lunes a domingo. El promedio de eventos/día usa solo los días con registro (no los 7). Δ% compara eventos/hora con la semana anterior. Registren cada día para ver la evolución.</p></div>';
+ h+='<div class="card"><h2>Eventos por día (rojo = fuertes)</h2>'+histChart()+'</div>';
+ h+='<div class="card"><h2>Horas pico (todos los días juntos)</h2>'+hourChart(S.eventos)+'<p class="mut small">Suma de todos los días: muestra a qué horas suele haber más movimientos.</p></div>';
+ const rank=o=>Object.entries(o).sort((a,b)=>b[1]-a[1]);
+ h+='<div class="card"><h2>Frecuencia por tipo</h2><div class="row"><div><div class="lbl">Parte del cuerpo</div><table>'+rank(g.porParte).map(kv=>'<tr><td>'+esc(kv[0])+'</td><td><b>'+kv[1]+'</b></td></tr>').join('')+'</table></div><div><div class="lbl">Intensidad</div><table>'+rank(g.porInt).map(kv=>'<tr><td>'+esc(kv[0])+'</td><td><b>'+kv[1]+'</b></td></tr>').join('')+'</table><div class="lbl" style="margin-top:8px">Estado</div><table>'+rank(g.porEstado).map(kv=>'<tr><td>'+esc(kv[0])+'</td><td><b>'+kv[1]+'</b></td></tr>').join('')+'</table></div></div></div>';
+ return h;
+}
+function viewDosis(){
+ const a=S.ajustes;
+ let h='<div class="card"><h2>💊 Keppra (levetiracetam) — datos del tratamiento</h2><p class="small mut" style="margin-top:0">Anoten la <b>concentración del frasco</b> (mg/mL, viene en la etiqueta o caja) y el <b>peso</b> de la niña: con eso el médico calcula la dosis en mg/kg. <b>No cambien ni suspendan la dosis sin indicación médica.</b></p><div class="row"><div><div class="lbl">Concentración (mg/mL)</div><input type="number" step="1" id="aj-mgml" value="'+esc(a.mgml)+'" placeholder="ej. 100"></div><div><div class="lbl">Peso (kg)</div><input type="number" step="0.1" id="aj-peso" value="'+esc(a.peso)+'" placeholder="ej. 14"></div><div class="fix" style="align-self:flex-end"><button class="btn" data-act="saveMgPeso">Guardar</button></div></div></div>';
+ h+='<div class="card"><h2>Anotar dosis de un día</h2><p class="small mut" style="margin-top:0">Registren cada día (o al menos cada cambio de dosis). El gráfico del Historial muestra los mL debajo de cada día para comparar con la frecuencia.</p><div class="row"><div><div class="lbl">Fecha</div><input type="date" id="dose-fecha" value="'+todayStr()+'"></div><div><div class="lbl">mL por toma</div><input type="number" step="0.1" id="dose-ml" placeholder="ej. 0.4"></div><div><div class="lbl">Tomas / día</div><input type="number" step="1" id="dose-tomas" placeholder="ej. 2"></div></div><div style="margin-top:8px"><button class="btn" data-act="addDose">Guardar dosis</button></div></div>';
+ const days=Object.keys(S.contexto).filter(f=>S.contexto[f]&&S.contexto[f].ml).sort();
+ if(days.length){
+  h+='<div class="card"><h2>Historial de dosis</h2><table><tr><th>Fecha</th><th>mL/toma</th><th>Tomas</th><th>mg/día</th><th>mg/kg/día</th></tr>';
+  for(const f of days){const c=S.contexto[f];const mg=(a.mgml&&c.ml&&c.tomas)?(a.mgml*c.ml*c.tomas):null;const mgkg=(mg&&a.peso)?mg/a.peso:null;
+   h+='<tr><td>'+fechaCorta(f)+'</td><td><b>'+esc(c.ml)+'</b></td><td>'+esc(c.tomas||'—')+'</td><td>'+(mg!=null?mg.toFixed(0):'—')+'</td><td>'+(mgkg!=null?mgkg.toFixed(1):'—')+'</td></tr>';}
+  h+='</table>'+(!a.mgml?'<p class="mut small">Completa la concentración (mg/mL) para ver mg/día y mg/kg/día.</p>':'')+'</div>';
+ }
+ return h;
+}
+function viewMas(){
+ const a=S.ajustes;
+ let h='';
+ h+='<div class="card"><h2>📲 Instalar / usar sin internet</h2><p class="small mut" style="margin-top:0">Se puede instalar como app y funciona sin internet después de la primera carga.</p><button class="btn" id="btnInstall" data-act="instalar" style="'+(deferredPrompt?'':'display:none')+'">📲 Instalar app</button><p class="small" style="margin:8px 0 0"><b>Android (Chrome):</b> menú ⋮ → <i>Instalar</i> / <i>Agregar a pantalla de inicio</i>.<br><b>iPhone (Safari):</b> Compartir → <i>Agregar a inicio</i>.</p><p class="mut small" style="margin:6px 0 0">Los datos quedan en este dispositivo. Respaldo semanal: Exportar → Respaldo (.json).</p></div>';
+ h+='<div class="card"><h2>📤 Exportar / compartir</h2><div class="row"><button class="btn" data-act="exportCSV">CSV de eventos</button><button class="btn sec" data-act="exportDias">CSV días/dosis</button><button class="btn sec" data-act="exportJSON">Respaldo (.json)</button></div><p class="mut small">El CSV se abre en Excel. Para juntar los registros de varios familiares: cada uno exporta su CSV y una persona los importa aquí (se combinan sin duplicar).</p></div>';
+ h+='<div class="card"><h2>📥 Importar</h2><button class="btn sec" data-act="importFile">Importar CSV o respaldo .json</button><p class="mut small">Combina por identificador: no duplica eventos ya existentes.</p></div>';
+ h+='<div class="card"><h2>📋 Pegar lista (modo WhatsApp)</h2><p class="small mut" style="margin-top:0">¿Siguen anotando por WhatsApp como hasta ahora? Peguen aquí los mensajes (con o sin el encabezado de WhatsApp) y se convierten en eventos. Las líneas sin hora (ej. “Izquierda”, “abre los ojos”) se agregan al evento anterior. <b>Revisen la vista previa antes de confirmar</b> (sobre todo 1:04 → 13:04 si fue de tarde).</p><div class="lbl">Fecha de los eventos</div><input type="date" id="parse-fecha" value="'+(ui.selDay||todayStr())+'"><div class="lbl" style="margin-top:8px">Texto</div><textarea id="parse-text" placeholder="8:05 mano y pie&#10;8:06 mano izquierda&#10;9:17 temblor fuerte generalizado&#10;1:24 mano"></textarea><div style="margin-top:8px"><button class="btn" data-act="parsePreview">Convertir y revisar</button></div></div>';
+ h+='<div class="card"><h2>⚙️ Ajustes</h2><div class="lbl">Nombre de la niña</div><input id="aj-nombre" value="'+esc(a.nombre)+'" placeholder="Nombre"><div class="lbl" style="margin-top:8px">Observadores (separados por coma)</div><input id="aj-obs" value="'+esc(a.observadores.join(', '))+'"><div class="lbl" style="margin-top:8px">Quién registra en este dispositivo</div><select id="aj-obsActivo">'+a.observadores.map(o=>'<option'+(o===a.obsActivo?' selected':'')+'>'+esc(o)+'</option>').join('')+'</select><div style="margin-top:10px"><button class="btn" data-act="saveAjustes">Guardar ajustes</button></div></div>';
+ h+='<div class="card"><h2>❓ Guía rápida</h2>'+helpHtml()+'</div>';
+ h+='<div class="card"><h2>🗑️ Datos</h2><p class="small mut">Guardado: '+S.eventos.length+' eventos en este dispositivo'+(storageOK?'':' (⚠️ solo en memoria: vista previa)')+'.</p><button class="btn red" data-act="clearAll">Borrar todos los datos</button></div>';
+ return h;
+}
+function helpHtml(){
+ return '<div class="helpbox"><b>Qué registrar</b><ul><li><b>Cada movimiento</b>, aunque sea sutil: un toque al botón grande guarda la hora exacta. Los detalles son opcionales.</li><li><b>Duración:</b> para eventos de segundos no hace falta el dato exacto — usen rangos (&lt;5 s, 5–15 s…) o déjenlo vacío. Para el médico, la <b>frecuencia, los racimos y las partes del cuerpo</b> importan más que los segundos exactos.</li><li><b>Varios seguidos:</b> si en un minuto hay varios movimientos, marquen “Varios seguidos”.</li><li><b>Despierta:</b> anoten lo que la niña diga (“me tembló la pierna”) en la nota.</li></ul></div>'
+ +'<div class="helpbox"><b>🎥 Videos (muy útiles para el neurólogo)</b><ul><li>Luz encendida, que se vean <b>cara y cuerpo completo</b>; narrar en voz alta lo que se ve.</li><li>Grabar hasta que termine y cómo queda después (si responde, habla, se vuelve a dormir).</li><li>Anotar la hora del video y <b>sincronizar el reloj de la cámara con el celular</b> (suelen diferir).</li><li>Los eventos marcados 🎥 son los que conviene revisar/guardar.</li></ul></div>'
+ +'<div class="helpbox red"><b>⚠️ Cuándo buscar ayuda urgente</b><ul><li>Un evento que dura <b>más de 5 minutos</b>.</li><li>Varios eventos seguidos <b>sin recuperarse entre ellos</b>.</li><li>Dificultad para respirar, labios o cara morados.</li><li>No responde o no despierta como siempre después del evento.</li><li>Se lastima durante un evento.</li></ul><b>→ Llamen a emergencias / acudan a urgencias.</b> Y avisen al neurólogo <b>pronto</b> (sin esperar la próxima cita) por el cambio de patrón: más frecuentes, nuevas partes del cuerpo y episodios despierta. <b>No suspendan ni bajen el Keppra por su cuenta.</b></div>'
+ +'<div class="helpbox"><b>👨‍👩‍👧 En familia</b><ul><li>Cada persona registra en su celular eligiendo su nombre de observador, o todos anotan en un solo teléfono (el que mira la cámara).</li><li>Al final del día: exportar CSV → una persona importa los demás, o peguen las listas de WhatsApp en “Pegar lista”.</li><li>Para la cita: “Informe médico” (imprimir/PDF) + el CSV + los videos de los eventos 🎥.</li></ul></div>';
+}
+
+/* ---------- sheet (editor de evento) ---------- */
+function renderSheet(){
+ const w=document.getElementById('sheetWrap');const sh=document.getElementById('sheet');
+ const e=ui.sheetId?evById(ui.sheetId):null;
+ if(!e){w.className='';sh.innerHTML='';return;}
+ w.className='open';
+ let h='<div class="grab"></div><div class="row" style="justify-content:space-between"><h2 style="margin:0;font-size:17px">Evento '+e.hora+(e.horaFin?'–'+e.horaFin:'')+'</h2><button class="btn ghost fix" data-act="closeSheet">Listo ✓</button></div>';
+ h+='<div class="row" style="margin-top:8px"><div><div class="lbl">Fecha</div><input type="date" data-field="fecha" value="'+e.fecha+'"></div><div><div class="lbl">Hora inicio</div><input type="time" data-field="hora" value="'+e.hora+'"></div><div><div class="lbl">Hora fin (opc.)</div><input type="time" data-field="horaFin" value="'+e.horaFin+'"></div></div>';
+ h+='<div class="lbl">Parte del cuerpo</div><div class="chips">'+PARTES.map(p=>'<button class="chip '+(e.partes.indexOf(p)>=0?'on':'')+'" data-act="chipPart" data-val="'+p+'">'+p+'</button>').join('')+'</div>';
+ h+='<div class="lbl">Lado</div><div class="chips">'+LADOS.map(l=>'<button class="chip '+(e.lado===l?'on':'')+'" data-act="chipLado" data-val="'+l+'">'+l+'</button>').join('')+'</div>';
+ h+='<div class="lbl">Intensidad</div><div class="chips">'+[['Sutil','Sutil (apenas se ve)',''],['Leve','Leve','amb'],['Fuerte','Fuerte','red']].map(x=>'<button class="chip '+x[2]+' '+(e.intensidad===x[0]?'on':'')+'" data-act="chipInt" data-val="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>';
+ h+='<div class="lbl">Tipo</div><div class="chips">'+['Temblor','Sacudida','Otro'].map(t=>'<button class="chip '+(e.tipo===t?'on':'')+'" data-act="chipTipo" data-val="'+t+'">'+t+'</button>').join('')+'</div>';
+ h+='<div class="lbl">Duración aproximada (opcional)</div><div class="chips">'+DURS.map(d=>'<button class="chip '+(d[0]==='>5min'?'red':'')+' '+(e.dur===d[0]?'on':'')+'" data-act="chipDur" data-val="'+d[0]+'">'+d[1]+'</button>').join('')+'</div>';
+ if(e.dur==='>5min')h+='<div class="banner red">⚠️ Un evento de más de 5 minutos es una <b>urgencia médica</b>: llamen a emergencias. Si ya pasó, avisen al neurólogo hoy mismo.</div>';
+ h+='<div class="lbl">Estado</div><div class="seg">'+['Dormida','Despierta','No sé'].map(s=>'<button data-act="chipEstado" data-val="'+s+'" class="'+(e.estado===s?'on':'')+'">'+(s==='Dormida'?'😴 ':s==='Despierta'?'👀 ':'')+s+'</button>').join('')+'</div>';
+ h+='<div class="lbl">Observaciones rápidas</div><div class="chips">'+[['ojos','👀 Abrió los ojos'],['habla','🗣 Habló'],['varios','⧉ Varios seguidos'],['revisar','🎥 Revisar/guardar video']].map(t=>'<button class="chip '+(t[0]==='revisar'?'amb':'')+' '+(e[t[0]]?'on':'')+'" data-act="tog" data-key="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>';
+ h+='<div class="lbl">Nota (qué se vio, qué dijo la niña…)</div><input data-field="nota" value="'+esc(e.nota)+'" placeholder="ej. como tocando piano; me dijo “me tembló la pierna”">';
+ h+='<div class="lbl">Registró</div><select data-field="obs">'+S.ajustes.observadores.map(o=>'<option'+(o===e.obs?' selected':'')+'>'+esc(o)+'</option>').join('')+(S.ajustes.observadores.indexOf(e.obs)<0&&e.obs?'<option selected>'+esc(e.obs)+'</option>':'')+'</select>';
+ if(e.fuente)h+='<p class="mut small">Fuente: '+esc(e.fuente)+'</p>';
+ h+='<div class="row" style="margin-top:12px"><button class="btn" data-act="closeSheet">Guardar y cerrar ✓</button><button class="btn red fix" data-act="delEv" data-id="'+e.id+'">Borrar</button></div>';
+ sh.innerHTML=h;
+}
+function renderModal(){
+ const w=document.getElementById('modalWrap');const m=document.getElementById('modal');
+ if(!ui.modal){w.className='';m.innerHTML='';return;}
+ w.className='open';
+ let h='';
+ if(ui.modal==='wa'){
+  const txt=ui.waText||'';
+  h='<div class="row" style="justify-content:space-between"><h2 style="margin:0;font-size:16px">Resumen para WhatsApp</h2><button class="btn ghost fix" data-act="closeModal">✕</button></div><p class="mut small">Copien y envíen al grupo familiar / al médico.</p><textarea id="waText" readonly style="min-height:260px;font-size:13px">'+esc(txt)+'</textarea><div style="margin-top:8px"><button class="btn" data-act="copyModal">Copiar texto</button></div>';
+ }else if(ui.modal==='parse'){
+  const rows=ui.parseRows||[];
+  h='<div class="row" style="justify-content:space-between"><h2 style="margin:0;font-size:16px">Revisar conversión ('+rows.length+' eventos)</h2><button class="btn ghost fix" data-act="closeModal">✕</button></div><p class="mut small">Fecha: <b>'+fechaLarga(ui.parseFecha)+'</b>. Verifiquen horas (¿1:04 era de tarde → 13:04?) y borren filas que no sean eventos. Podrán editar cada evento después.</p>';
+  h+='<div style="max-height:46vh;overflow-y:auto">'+rows.map((e,i)=>'<div class="ev" style="cursor:default"><span class="h">'+e.hora+(e.horaFin?'–'+e.horaFin:'')+'</span><span class="p">'+esc(e.partes.join(' + ')||'movimiento')+'</span>'+badges(e)+'<button class="btn ghost fix" style="padding:4px 10px;margin-left:auto" data-act="parseDel" data-i="'+i+'">✕</button></div>').join('')+'</div>';
+  h+='<div class="row" style="margin-top:10px"><button class="btn" data-act="parseConfirm">Confirmar e importar '+rows.length+'</button><button class="btn ghost fix" data-act="closeModal">Cancelar</button></div>';
+ }
+ m.innerHTML=h;
+}
+
+/* ---------- informe imprimible ---------- */
+function buildPrint(f){
+ const evs=evsDia(f);const st=statsDia(evs);const ctx=getCtx(f);const a=S.ajustes;
+ let h='<h1>Registro de movimientos — '+(a.nombre?esc(a.nombre)+' — ':'')+fechaLarga(f)+'</h1>';
+ h+='<p><b>Total:</b> '+st.total+' eventos ('+(st.horaMin||'—')+'–'+(st.horaMax||'—')+') · <b>Fuertes:</b> '+st.fuertes+' · <b>Generalizados:</b> '+st.general+' · <b>Con apertura de ojos:</b> '+st.ojos+' · <b>Despierta:</b> '+st.despierta+' · <b>Sutiles:</b> '+st.sutiles+'</p>';
+ const fd=frecDia(evs,ctx);
+ if(fd.tasa!=null)h+='<p><b>Frecuencia:</b> '+fmtTasa(fd.tasa)+' eventos/hora · ventana '+fd.ventana+(fd.obsReal?' (observada)':' (primer→último evento)')+(fd.intervalo!=null?' · intervalo medio entre eventos: '+fd.intervalo.toFixed(1)+' min':'')+'</p>';
+ if(ctx.ml||a.mgml)h+='<p><b>Keppra:</b> '+(ctx.ml?ctx.ml+' mL por toma × '+(ctx.tomas||'?')+' tomas/día':'dosis no registrada ese día')+(a.mgml?' · concentración '+a.mgml+' mg/mL':'')+(a.peso?' · peso '+a.peso+' kg':'')+'</p>';
+ if(ctx.sueno||ctx.animo||ctx.notas)h+='<p><b>Contexto:</b> '+(ctx.sueno?'sueño ~'+ctx.sueno+' h · ':'')+(ctx.animo?'ánimo/irritabilidad '+ctx.animo+'/5 · ':'')+(ctx.notas?esc(ctx.notas):'')+'</p>';
+ h+='<h2>Frecuencia por hora</h2><table><tr>'+st.porHora.map((n,i)=>n?'<th>'+i+'h</th>':'').join('')+'</tr><tr>'+st.porHora.map(n=>n?'<td><b>'+n+'</b></td>':'').join('')+'</tr></table>';
+ h+='<h2>Eventos</h2><table><tr><th>Hora</th><th>Partes</th><th>Lado</th><th>Intensidad</th><th>Tipo</th><th>Estado</th><th>Duración</th><th>Ojos</th><th>Habla</th><th>Varios</th><th>Video</th><th>Nota</th></tr>';
+ for(const e of evs){h+='<tr><td><b>'+e.hora+(e.horaFin?'–'+e.horaFin:'')+'</b></td><td>'+esc(e.partes.join(', '))+'</td><td>'+esc(ladoAbbr(e.lado))+'</td><td>'+esc(e.intensidad)+'</td><td>'+esc(e.tipo)+'</td><td>'+esc(e.estado)+'</td><td>'+esc(durLabel(e.dur))+'</td><td>'+(e.ojos?'sí':'')+'</td><td>'+(e.habla?'sí':'')+'</td><td>'+(e.varios?'sí':'')+'</td><td>'+(e.revisar?'🎥':'')+'</td><td>'+esc(e.nota)+'</td></tr>';}
+ h+='</table><p style="font-size:10px;color:#555">Registro familiar. En eventos de segundos la duración exacta no siempre es registrable; se priorizó hora y frecuencia. “Sutil” = movimiento apenas perceptible (cámara). Revisar 🎥 = video pendiente de revisar/guardar.</p>';
+ document.getElementById('printArea').innerHTML=h;
+}
+
+function buildPrintFrec(){
+ const g=frecGlobal(S.eventos,S.contexto);const sem=frecSemanas(S.eventos,S.contexto);const a=S.ajustes;
+ let h='<h1>Informe de frecuencia — '+(a.nombre?esc(a.nombre)+' — ':'')+'registro de movimientos</h1>';
+ h+='<p><b>Días registrados:</b> '+g.dias+' · <b>Total:</b> '+g.total+' eventos · <b>Promedio:</b> '+g.promDia.toFixed(1)+' eventos/día'+(g.tasaGlobal!=null?' · <b>'+fmtTasa(g.tasaGlobal)+' eventos/hora</b>':'')+'</p>';
+ h+='<p><b>Fuertes:</b> '+g.fuertes+' · <b>Generalizados:</b> '+g.general+' · <b>Despierta:</b> '+g.despierta+(a.mgml?' · concentración '+a.mgml+' mg/mL':'')+(a.peso?' · peso '+a.peso+' kg':'')+'</p>';
+ if(g.tendencia){const t=g.tendencia;h+='<p><b>Tendencia:</b> '+(t.cambioPct>=0?'aumento':'descenso')+' de '+Math.abs(t.cambioPct).toFixed(0)+'% en eventos/hora entre '+fechaCorta(t.de)+' ('+fmtTasa(t.tasaA)+'/h) y '+fechaCorta(t.a)+' ('+fmtTasa(t.tasaB)+'/h).</p>';}
+ h+='<h2>Frecuencia por día</h2><table><tr><th>Fecha</th><th>Eventos</th><th>Fuertes</th><th>Generalizados</th><th>Despierta</th><th>Ventana</th><th>Eventos/hora</th><th>Intervalo medio (min)</th><th>Keppra mL/toma</th></tr>';
+ for(const d of g.porDia){h+='<tr><td>'+d.fecha+'</td><td><b>'+d.total+'</b></td><td>'+d.fuertes+'</td><td>'+d.general+'</td><td>'+d.despierta+'</td><td>'+(d.ventana||'—')+(d.obsReal?'':' *')+'</td><td><b>'+fmtTasa(d.tasa)+'</b></td><td>'+(d.intervalo!=null?d.intervalo.toFixed(1):'—')+'</td><td>'+esc(d.ml||'')+'</td></tr>';}
+ h+='</table>';
+ if(sem.length){
+  h+='<h2>Frecuencia por semana (lunes a domingo)</h2><table><tr><th>Semana</th><th>Rango</th><th>Días con registro</th><th>Eventos</th><th>Eventos/día</th><th>Eventos/hora</th><th>Fuertes</th><th>Generalizados</th><th>Despierta</th><th>Δ% vs ant.</th></tr>';
+  for(const s of sem){h+='<tr><td>S'+s.iso+'</td><td>'+s.etiqueta+'</td><td>'+s.diasRegistrados+'/7</td><td><b>'+s.total+'</b></td><td>'+s.promDia.toFixed(1)+'</td><td><b>'+fmtTasa(s.tasa)+'</b></td><td>'+s.fuertes+'</td><td>'+s.general+'</td><td>'+s.despierta+'</td><td>'+(s.cambioPct!=null?(s.cambioPct>=0?'+':'')+s.cambioPct.toFixed(0)+'%':'—')+'</td></tr>';}
+  h+='</table><p style="font-size:10px;color:#555">Semanas ISO de lunes a domingo. El promedio de eventos/día usa solo los días con registro. Δ% compara eventos/hora con la semana anterior.</p>';
+ }
+ h+='<h2>Horas pico (suma de todos los días)</h2><table><tr>'+g.porHora.map((n,i)=>n?'<th>'+i+'h</th>':'').join('')+'</tr><tr>'+g.porHora.map(n=>n?'<td><b>'+n+'</b></td>':'').join('')+'</tr></table>';
+ const rank=o=>Object.entries(o).sort((a,b)=>b[1]-a[1]);
+ h+='<h2>Frecuencia por parte del cuerpo</h2><table><tr>'+rank(g.porParte).map(kv=>'<th>'+esc(kv[0])+'</th>').join('')+'</tr><tr>'+rank(g.porParte).map(kv=>'<td><b>'+kv[1]+'</b></td>').join('')+'</tr></table>';
+ h+='<p style="font-size:10px;color:#555">* Ventana estimada como primer→último evento del día (no se indicó horario observado). Tasa eventos/hora = eventos ÷ horas de la ventana. Registro familiar; en eventos de segundos se priorizó hora y frecuencia sobre duración exacta.</p>';
+ document.getElementById('printArea').innerHTML=h;
+}
+
+/* ---------- acciones ---------- */
+function addEvent(e){normalizeEv(e);if(!e.id)e.id=genId();S.eventos.push(e);save();return e;}
+function download(name,content,mime){
+ try{const blob=new Blob([content],{type:mime||'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},500);toast('Descargando '+name);}
+ catch(err){toast('No se pudo descargar aquí. Abre la app fuera de la vista previa.');}
+}
+document.addEventListener('click',ev=>{
+ const t=ev.target.closest('[data-act]');if(!t)return;
+ const act=t.dataset.act;
+ const cur=ui.sheetId?evById(ui.sheetId):null;
+ switch(act){
+  case 'tab':ui.tab=t.dataset.tab;render();window.scrollTo(0,0);break;
+  case 'instalar':instalarApp();break;
+  case 'introOk':S.ajustes.introVista=true;save();render();break;
+  case 'defEstado':S.ajustes.estadoDefault=t.dataset.val;save();render();break;
+  case 'quickLog':{const e=addEvent(newEv(todayStr(),nowHM(),S.ajustes.obsActivo,S.ajustes.estadoDefault));e.fuente='App';save();ui.sheetId=e.id;render();toast('Registrado '+e.hora+' ✓');break;}
+  case 'pastEvent':{const e=newEv(todayStr(),nowHM(),S.ajustes.obsActivo,S.ajustes.estadoDefault);e.fuente='App (hora manual)';addEvent(e);ui.sheetId=e.id;render();toast('Ajusten la hora del evento');break;}
+  case 'openEv':ui.sheetId=t.dataset.id;renderSheet();break;
+  case 'closeSheet':ui.sheetId=null;render();break;
+  case 'chipPart':{if(!cur)break;const p=t.dataset.val;const i=cur.partes.indexOf(p);
+   if(p==='Generalizado'){cur.partes=i>=0?[]:['Generalizado'];}
+   else{cur.partes=cur.partes.filter(x=>x!=='Generalizado');const j=cur.partes.indexOf(p);if(j>=0)cur.partes.splice(j,1);else cur.partes.push(p);}
+   normalizeEv(cur);save();renderSheet();break;}
+  case 'chipLado':if(cur){cur.lado=cur.lado===t.dataset.val?'':t.dataset.val;save();renderSheet();}break;
+  case 'chipInt':if(cur){cur.intensidad=cur.intensidad===t.dataset.val?'':t.dataset.val;normalizeEv(cur);save();renderSheet();}break;
+  case 'chipTipo':if(cur){cur.tipo=cur.tipo===t.dataset.val?'':t.dataset.val;save();renderSheet();}break;
+  case 'chipDur':if(cur){cur.dur=cur.dur===t.dataset.val?'':t.dataset.val;save();renderSheet();}break;
+  case 'chipEstado':if(cur){cur.estado=t.dataset.val;save();renderSheet();}break;
+  case 'tog':if(cur){const k=t.dataset.key;cur[k]=!cur[k];save();renderSheet();}break;
+  case 'delEv':{const id=t.dataset.id;if(confirm('¿Borrar este evento?')){S.eventos=S.eventos.filter(e=>e.id!==id);save();ui.sheetId=null;render();toast('Evento borrado');}break;}
+  case 'selDay':ui.selDay=t.dataset.day;ui.tab='hist';render();break;
+  case 'goHist':ui.selDay=t.dataset.day;ui.tab='hist';render();window.scrollTo(0,0);break;
+  case 'ctxSave':{const f=t.dataset.day;setCtx(f,{sueno:document.getElementById('ctx-sueno').value,animo:document.getElementById('ctx-animo').value,notas:document.getElementById('ctx-notas').value,obsDesde:document.getElementById('ctx-desde').value,obsHasta:document.getElementById('ctx-hasta').value});toast('Contexto guardado ✓');render();break;}
+  case 'saveMgPeso':S.ajustes.mgml=document.getElementById('aj-mgml').value;S.ajustes.peso=document.getElementById('aj-peso').value;save();toast('Guardado ✓');render();break;
+  case 'addDose':{const f=document.getElementById('dose-fecha').value;const ml=document.getElementById('dose-ml').value;const tomas=document.getElementById('dose-tomas').value;if(!f||!ml){toast('Completa fecha y mL');break;}setCtx(f,{ml:ml,tomas:tomas});toast('Dosis guardada ✓');render();break;}
+  case 'exportCSV':download('eventos_'+todayStr()+'.csv',toCSV(S.eventos.slice().sort((a,b)=>(a.fecha+a.hora)<(b.fecha+b.hora)?-1:1)),'text/csv;charset=utf-8');break;
+  case 'exportDias':{const rows=['fecha;ml_por_toma;tomas_dia;sueno_h;animo_1a5;notas'];Object.keys(S.contexto).sort().forEach(f=>{const c=S.contexto[f];rows.push([f,c.ml||'',c.tomas||'',c.sueno||'',c.animo||'',csvEsc(c.notas||'')].join(';'));});download('dias_dosis_'+todayStr()+'.csv','﻿'+rows.join('\n'),'text/csv;charset=utf-8');break;}
+  case 'exportJSON':download('respaldo_registro_'+todayStr()+'.json',JSON.stringify(S,null,1),'application/json');break;
+  case 'importFile':document.getElementById('fileIn').click();break;
+  case 'waSummary':{const f=t.dataset.day||todayStr();ui.waText=resumenDia(f,evsDia(f),getCtx(f),S.ajustes.nombre);ui.modal='wa';renderModal();break;}
+  case 'waFrec':ui.waText=resumenFrecuencia(frecGlobal(S.eventos,S.contexto),S.ajustes.nombre,frecSemanas(S.eventos,S.contexto));ui.modal='wa';renderModal();break;
+  case 'copyModal':{const ta=document.getElementById('waText');ta.select();ta.setSelectionRange(0,999999);let ok=false;try{ok=document.execCommand('copy');}catch(e){}
+   if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(ta.value).then(()=>toast('Copiado ✓')).catch(()=>toast(ok?'Copiado ✓':'Seleccionado: mantén presionado y copia'));}
+   else toast(ok?'Copiado ✓':'Seleccionado: mantén presionado y copia');break;}
+  case 'closeModal':ui.modal=null;ui.parseRows=null;renderModal();break;
+  case 'parsePreview':{const txt=document.getElementById('parse-text').value;const f=document.getElementById('parse-fecha').value||todayStr();if(!txt.trim()){toast('Pega el texto primero');break;}
+   ui.parseRows=parseLista(txt,f,S.ajustes.obsActivo,S.ajustes.estadoDefault).map(normalizeEv);ui.parseFecha=f;
+   if(!ui.parseRows.length){toast('No se encontraron horas (ej. 8:05)');break;}
+   ui.modal='parse';renderModal();break;}
+  case 'parseDel':ui.parseRows.splice(+t.dataset.i,1);renderModal();break;
+  case 'parseConfirm':{let n=0;for(const e of ui.parseRows){e.id=genId();S.eventos.push(e);n++;}save();ui.selDay=ui.parseFecha;ui.modal=null;ui.parseRows=null;ui.tab='hist';render();toast(n+' eventos importados ✓');break;}
+  case 'saveAjustes':{S.ajustes.nombre=document.getElementById('aj-nombre').value.trim();
+   const obs=document.getElementById('aj-obs').value.split(',').map(s=>s.trim()).filter(Boolean);if(obs.length)S.ajustes.observadores=obs;
+   S.ajustes.obsActivo=document.getElementById('aj-obsActivo').value;save();toast('Ajustes guardados ✓');render();break;}
+  case 'printDay':buildPrint(t.dataset.day);setTimeout(()=>window.print(),80);break;
+  case 'printFrec':buildPrintFrec();setTimeout(()=>window.print(),80);break;
+  case 'clearAll':if(confirm('Esto borra TODOS los eventos y dosis de este dispositivo. ¿Seguro?')&&confirm('Última confirmación: ¿borrar todo?')){S={eventos:[],contexto:{},ajustes:S.ajustes};save();render();toast('Datos borrados');}break;
+ }
+});
+document.addEventListener('change',ev=>{
+ const t=ev.target;
+ if(t.dataset&&t.dataset.field&&ui.sheetId){const e=evById(ui.sheetId);if(!e)return;const k=t.dataset.field;
+  if(k==='hora'||k==='horaFin'){if(t.value)e[k]=t.value;else if(k==='horaFin')e[k]='';}
+  else e[k]=t.value;
+  normalizeEv(e);save();render();}
+});
+document.getElementById('fileIn').addEventListener('change',function(){
+ const file=this.files[0];if(!file)return;
+ const rd=new FileReader();
+ rd.onload=()=>{try{
+   const txt=String(rd.result);let added=0,updated=0;
+   if(/\.json$/i.test(file.name)||txt.trim().startsWith('{')){
+    const data=JSON.parse(txt);
+    if(data.eventos){for(const e of data.eventos){if(!e||!e.fecha||!e.hora)continue;const ex=evById(e.id);if(ex){Object.assign(ex,e);updated++;}else{S.eventos.push(e);added++;}}}
+    if(data.contexto){for(const f of Object.keys(data.contexto)){S.contexto[f]=Object.assign({},S.contexto[f],data.contexto[f]);}}
+   }else{
+    const evs=parseCSV(txt);
+    for(const e of evs){const ex=evById(e.id);if(ex){Object.assign(ex,e);updated++;}else{S.eventos.push(e);added++;}}
+   }
+   save();render();toast('Importado: '+added+' nuevos, '+updated+' actualizados ✓');
+  }catch(err){toast('No se pudo leer el archivo');}
+  this.value='';};
+ rd.readAsText(file,'utf-8');
+});
+document.getElementById('sheetWrap').addEventListener('click',e=>{if(e.target.id==='sheetWrap'){ui.sheetId=null;render();}});
+document.getElementById('modalWrap').addEventListener('click',e=>{if(e.target.id==='modalWrap'){ui.modal=null;ui.parseRows=null;renderModal();}});
+render();
+</script>
+</body>
+</html>

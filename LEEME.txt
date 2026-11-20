@@ -1,0 +1,94 @@
+REGISTRO DE MOVIMIENTOS — guía de archivos (todo en JavaScript)
+================================================================
+
+LA APP
+------
+index.html → la app completa (HTML + CSS + JS en un solo archivo, SIN dependencias).
+  Funciona sin internet. Ábrela en el navegador del celular o computadora.
+  Mapa del código (para modificarla):
+    1. <style> .................. estilos (colores en :root)
+    2. /*LOGIC-START*/ ... /*LOGIC-END*/  funciones puras (sin pantalla):
+         - PARTES / LADOS / DURS .... listas de opciones (¡edita aquí para agregar
+           partes del cuerpo o rangos de duración!)
+         - parseLista() ........... convierte mensajes de WhatsApp en eventos
+         - toCSV()/parseCSV() ..... exportar/importar
+         - statsDia()/resumenDia(). conteos y resumen de WhatsApp
+    3. estado y almacenamiento ... localStorage (clave 'registro_temblores_v1')
+    4. vistas .................... viewHoy / viewHist / viewDosis / viewMas
+    5. acciones .................. el switch grande con data-act (qué hace cada botón)
+  Pestaña 📈 Frecuencia (lo que pide el neurólogo): eventos/día, eventos/hora y
+  eventos/semana (lunes a domingo, con tendencia semana a semana), horas pico y
+  frecuencia por parte del cuerpo / intensidad / estado.
+  Botones "Enviar frecuencia" (WhatsApp) e "Informe de frecuencia" (imprimir / PDF).
+  Para que eventos/hora sea exacto, indiquen el horario observado en
+  Historial → Contexto del día → "Observado desde / hasta".
+  La semilla del 19/11 está entre /*SEED-INICIO*/ y /*SEED-FIN*/.
+  OJO: la semilla solo se usa la PRIMERA vez en un dispositivo; si el navegador ya
+  tiene datos guardados, no se pisan. Para editar un evento ya guardado, tócalo en la app.
+
+publica/ → la MISMA app pero SIN datos personales (semilla vacía), en versión PWA
+  instalable. Incluye index.html + manifest.webmanifest + sw.js + íconos PNG.
+  Es la carpeta COMPLETA que se sube a Render / GitHub Pages. Se genera con: npm run publicar
+
+GENERADOR (Node.js, ya no hay Python)
+-------------------------------------
+datos_eventos.json → fuente de verdad de los 46 eventos del 19/11. Edítalo aquí.
+construir.js ...... lee el JSON y genera: CSV + semilla en index.html + Excel.
+test_logica.js .... 35 pruebas de la lógica (parser WhatsApp, CSV, conteos).
+package.json ...... dependencias y comandos.
+
+  Comandos (en esta carpeta, con Node 18+):
+    npm install          una sola vez (descarga exceljs)
+    npm run construir    regenera CSV + Excel + semilla
+    npm run publicar     además crea publica/index.html sin datos personales
+    npm test             corre las pruebas
+
+SALIDAS
+-------
+registro_temblores.xlsx → para el médico: Resumen (barras por hora), Eventos 19-nov,
+  Plantilla con desplegables, Dosis y contexto (fórmulas mg/kg), Instrucciones.
+  Nota: el gráfico del Excel son barras de texto █ (exceljs no crea gráficos nativos);
+  el gráfico interactivo real está en la app (Historial).
+eventos_19nov2026.csv → los 46 eventos, importable en la app o Excel.
+test_transcript.txt .. los mensajes originales de WhatsApp (los usa npm test).
+
+PUBLICAR EN RENDER (sitio estático, gratis)
+-------------------------------------------
+Sí se puede: la app es 100% estática (no necesita servidor ni base de datos).
+  1. npm run iconos     → genera los PNG del ícono (una vez; ya vienen incluidos).
+  2. npm run publicar   → genera publica/ (index.html SIN datos + manifest + sw.js + íconos).
+  3. Sube la carpeta publica/ COMPLETA a un repositorio de GitHub (puede ser privado).
+  4. En render.com: New → Static Site → conecta el repo.
+       Build Command: (vacío)   ·   Publish Directory: publica  (o donde esté el index)
+  5. Render te da una URL tipo https://tu-registro.onrender.com — los tres la abren y
+     la instalan: Android Chrome → ⋮ → Instalar / Agregar a pantalla de inicio;
+     iPhone Safari → Compartir → Agregar a inicio. Gratis y no se "duerme".
+
+  PWA (instalable + sin internet):
+  • manifest.webmanifest define nombre/íconos/modo "standalone" (se abre como app).
+  • sw.js (service worker) guarda la app en caché: tras la primera carga con internet,
+    funciona SIN internet. El HTML usa "red primero" para que las actualizaciones lleguen
+    solas cuando hay conexión; los íconos usan "caché primero".
+  • Solo funciona en https (Render lo es) o localhost. Abrir el archivo suelto (file://)
+    también sirve, pero sin service worker (el archivo único ya funciona sin internet).
+  • Vista previa local con MIME correctos: npm run preview → http://localhost:8000
+
+  IMPORTANTE — dos cosas que NO hace el hosting:
+  • NO junta los datos: cada navegador guarda su propio registro (localStorage).
+    La URL es compartida, pero los datos siguen siendo por dispositivo. Para unirlos:
+    exportar CSV en cada teléfono e importar en uno solo (o pegar listas de WhatsApp).
+  • NO protege con contraseña: cualquiera con el link ve la app. Por eso se publica
+    la versión SIN datos. Nunca subas index.html con la semilla real a un sitio público.
+
+  ¿Quieren un registro ÚNICO compartido en tiempo real (que todos vean lo mismo)?
+  Eso necesita un backend + base de datos (p. ej. Supabase gratis, o un servicio Node
+  en Render + Postgres). Es un paso más grande; se puede hacer después.
+
+SEGURIDAD (recordatorio)
+------------------------
+- Avisen al neurólogo PRONTO por el cambio de patrón (más frecuentes, nuevas partes
+  del cuerpo, episodios despierta). No esperen la próxima cita.
+- No suspendan ni cambien el Keppra por su cuenta.
+- Urgencias si: un evento dura más de 5 minutos, varios seguidos sin recuperarse,
+  dificultad para respirar o labios morados, no responde/no despierta como siempre,
+  o se lastima.
