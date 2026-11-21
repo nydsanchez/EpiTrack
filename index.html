@@ -1005,7 +1005,10 @@
         }
         ventanaMin = h - d;
         ventana = hh(d) + '–' + hh(h);
-        tasa = evs.length / (ventanaMin / 60);
+        // Con 1 solo evento y sin horario observado, la ventana de 1 min es inventada:
+        // no hay base para estimar frecuencia (siempre saldría 60/h). Se muestra "—".
+        if (!obsReal && evs.length < 2) { tasa = null; ventanaMin = 0; }
+        else tasa = evs.length / (ventanaMin / 60);
       }
       let intervalo = null;
       if (evs.length > 1) { const mins = evs.map(e => minAbs(e.fecha, e.hora)).sort((a, b) => a - b); let s = 0; for (let i = 1; i < mins.length; i++)s += mins[i] - mins[i - 1]; intervalo = s / (mins.length - 1); }
@@ -1022,19 +1025,20 @@
       const general = eventos.filter(e => e.partes.indexOf('Generalizado') >= 0).length;
       const despierta = eventos.filter(e => e.estado === 'Despierta').length;
       const porHora = Array(24).fill(0); eventos.forEach(e => { const h = parseInt(e.hora, 10); if (h >= 0 && h < 24) porHora[h]++; });
-      const porParte = {}, porInt = {}, porEstado = {};
+      const porParte = {}, porInt = {}, porEstado = {}, porTipo = {};
       for (const e of eventos) {
         const ps = e.partes.length ? e.partes : ['(sin detalle)'];
         ps.forEach(p => { porParte[p] = (porParte[p] || 0) + 1; });
         const it = e.intensidad || '(sin indicar)'; porInt[it] = (porInt[it] || 0) + 1;
         porEstado[e.estado] = (porEstado[e.estado] || 0) + 1;
+        const tp = e.tipo || '(sin indicar)'; porTipo[tp] = (porTipo[tp] || 0) + 1;
       }
       let tendencia = null;
       if (porDia.length >= 2) {
         const a = porDia[0], b = porDia[porDia.length - 1];
         if (a.tasa && b.tasa) tendencia = { de: a.fecha, a: b.fecha, tasaA: a.tasa, tasaB: b.tasa, cambioPct: (b.tasa - a.tasa) / a.tasa * 100, nA: a.total, nB: b.total };
       }
-      return { dias: dias.length, total: total, promDia: dias.length ? total / dias.length : 0, horasObs: horasObs, tasaGlobal: horasObs > 0 ? total / horasObs : null, fuertes: fuertes, general: general, despierta: despierta, porDia: porDia, porHora: porHora, porParte: porParte, porInt: porInt, porEstado: porEstado, tendencia: tendencia };
+      return { dias: dias.length, total: total, promDia: dias.length ? total / dias.length : 0, horasObs: horasObs, tasaGlobal: horasObs > 0 ? total / horasObs : null, fuertes: fuertes, general: general, despierta: despierta, porDia: porDia, porHora: porHora, porParte: porParte, porInt: porInt, porEstado: porEstado, porTipo: porTipo, tendencia: tendencia };
     }
     /* ---- Frecuencia por semana (lunes a domingo, semana ISO) ---- */
     function lunesDe(fecha) { const d = new Date(fecha + 'T12:00:00'); const dow = (d.getDay() + 6) % 7; d.setDate(d.getDate() - dow); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
@@ -1188,6 +1192,22 @@
       if (n) save();
     }
     migrarSeedNoche();
+    /* "Laguna mental" es un TIPO, no una parte del cuerpo. Si quedó guardada como
+       parte (versiones anteriores), se mueve a tipo. Es idempotente: corre en cada
+       arranque y solo guarda si cambió algo. */
+    function migrarLagunaMental() {
+      let n = 0;
+      for (const e of S.eventos) {
+        const i = (e.partes || []).indexOf('Laguna mental');
+        if (i < 0) continue;
+        e.partes.splice(i, 1);
+        if (!e.tipo) e.tipo = 'Laguna mental';
+        else if (e.tipo !== 'Laguna mental') e.nota = (e.nota ? e.nota + ' · ' : '') + 'Laguna mental';
+        n++;
+      }
+      if (n) save();
+    }
+    migrarLagunaMental();
     function save() { if (storageOK) { try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (e) { } } }
     const ui = { tab: 'hoy', selDay: null, sheetId: null, modal: null, parseRows: null, parseFecha: null, quickId: null, arm: { partes: [], lado: '', intensidad: '' } };
     function evById(id) { return S.eventos.find(e => e.id === id); }
@@ -1388,7 +1408,7 @@
       }
       h += '<div class="card"><h2>Frecuencia por noche</h2><div style="overflow-x:auto"><table><tr><th>Noche</th><th>Eventos</th><th>Fuertes</th><th>General.</th><th>Despierta</th><th>Ventana</th><th>Eventos/h</th><th>mL</th></tr>';
       for (const d of g.porDia) { h += '<tr data-act="goHist" data-day="' + d.fecha + '" style="cursor:pointer"><td><b>' + fechaCorta(d.fecha) + '</b></td><td><b>' + d.total + '</b></td><td>' + (d.fuertes || '') + '</td><td>' + (d.general || '') + '</td><td>' + (d.despierta || '') + '</td><td class="small">' + (d.ventana || '—') + (d.obsReal ? '' : '*') + '</td><td><b>' + fmtTasa(d.tasa) + '</b></td><td>' + esc(d.ml || '') + '</td></tr>'; }
-      h += '</table></div><p class="mut small">* Ventana = primer→último evento. Para una tasa más exacta, indiquen el horario observado en Historial → Contexto de la noche ("Observado desde/hasta"). Toca una fila para ver esa noche.</p></div>';
+      h += '</table></div><p class="mut small">* Ventana = primer→último evento. Para una tasa más exacta, indiquen el horario observado en Historial → Contexto de la noche ("Observado desde/hasta"). Con un solo evento y sin horario observado, eventos/h queda en — (no se inventa una frecuencia). Toca una fila para ver esa noche.</p></div>';
       const sem = frecSemanas(S.eventos, S.contexto, corte());
       h += '<div class="card"><h2>Frecuencia por semana (lunes a domingo)</h2>' + weekChart(sem) + '<div style="overflow-x:auto"><table><tr><th>Semana</th><th>Noches reg.</th><th>Eventos</th><th>Eventos/noche</th><th>Eventos/h</th><th>Fuertes</th><th>General.</th><th>Despierta</th><th>Δ% vs ant.</th></tr>';
       for (const s of sem) { h += '<tr><td><b>S' + s.iso + '</b><br><span class="mut small">' + s.etiqueta + '</span></td><td>' + s.diasRegistrados + '/7</td><td><b>' + s.total + '</b></td><td>' + s.promDia.toFixed(1) + '</td><td><b>' + fmtTasa(s.tasa) + '</b></td><td>' + (s.fuertes || '') + '</td><td>' + (s.general || '') + '</td><td>' + (s.despierta || '') + '</td><td>' + (s.cambioPct != null ? (s.cambioPct >= 0 ? '+' : '') + s.cambioPct.toFixed(0) + '%' : '—') + '</td></tr>'; }
@@ -1396,7 +1416,7 @@
       h += '<div class="card"><h2>Eventos por noche (rojo = fuertes)</h2>' + histChart() + '</div>';
       h += '<div class="card"><h2>Horas pico (todas las noches juntas)</h2>' + hourChart(S.eventos, corte()) + '<p class="mut small">Suma de todas las noches, en orden de la noche (de ' + corte() + ' a las 06:59): muestra a qué horas suele haber más movimientos.</p></div>';
       const rank = o => Object.entries(o).sort((a, b) => b[1] - a[1]);
-      h += '<div class="card"><h2>Frecuencia por tipo</h2><div class="row"><div><div class="lbl">Parte del cuerpo</div><table>' + rank(g.porParte).map(kv => '<tr><td>' + esc(kv[0]) + '</td><td><b>' + kv[1] + '</b></td></tr>').join('') + '</table></div><div><div class="lbl">Intensidad</div><table>' + rank(g.porInt).map(kv => '<tr><td>' + esc(kv[0]) + '</td><td><b>' + kv[1] + '</b></td></tr>').join('') + '</table><div class="lbl" style="margin-top:8px">Estado</div><table>' + rank(g.porEstado).map(kv => '<tr><td>' + esc(kv[0]) + '</td><td><b>' + kv[1] + '</b></td></tr>').join('') + '</table></div></div></div>';
+      h += '<div class="card"><h2>Frecuencia por tipo</h2><div class="row"><div><div class="lbl">Parte del cuerpo</div><table>' + rank(g.porParte).map(kv => '<tr><td>' + esc(kv[0]) + '</td><td><b>' + kv[1] + '</b></td></tr>').join('') + '</table><div class="lbl" style="margin-top:8px">Tipo</div><table>' + rank(g.porTipo).map(kv => '<tr><td>' + esc(kv[0]) + '</td><td><b>' + kv[1] + '</b></td></tr>').join('') + '</table></div><div><div class="lbl">Intensidad</div><table>' + rank(g.porInt).map(kv => '<tr><td>' + esc(kv[0]) + '</td><td><b>' + kv[1] + '</b></td></tr>').join('') + '</table><div class="lbl" style="margin-top:8px">Estado</div><table>' + rank(g.porEstado).map(kv => '<tr><td>' + esc(kv[0]) + '</td><td><b>' + kv[1] + '</b></td></tr>').join('') + '</table></div></div></div>';
       return h;
     }
     function viewDosis() {
