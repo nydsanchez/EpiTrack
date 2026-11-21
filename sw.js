@@ -6,7 +6,7 @@
 //   - Íconos/manifest/estáticos: "cache-first" (son fijos, se sirven al instante).
 //  Sube VERSION cuando cambie el "shell" para limpiar caches viejas.
 // ============================================================================
-const VERSION = 'registro-v1';
+const VERSION = 'registro-v2';
 const SHELL = ['./', './index.html', './manifest.webmanifest',
   './icon-192.png', './icon-512.png', './icon-180.png', './icon-maskable-512.png'];
 
